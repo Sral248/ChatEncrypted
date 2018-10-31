@@ -15,7 +15,7 @@ public class Main2 {
 		alice.createKey(bob.getPublicKey());
 		bob.createKey(alice.getPublicKey());
 		
-		String msg = "Hallo wie geht es dir?";
+		String msg = "Hallo wie geht es dir mein Freund?";
 		System.out.println(msg);
 
 		String cryptedMsg = alice.encrypt(msg);
