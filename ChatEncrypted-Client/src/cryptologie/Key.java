@@ -5,8 +5,8 @@ import java.math.BigInteger;
 public class Key {
 
 	private int privateKey;
-	public int p = 2207;
-	public int g = 50;
+	public int p = 13249;
+	public int g = 2001;
 	public int publicKeyMe;
 	public int publicKeyYou;
 	private int key;
