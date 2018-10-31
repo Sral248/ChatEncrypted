@@ -32,15 +32,20 @@ import java.awt.event.ActionEvent;
 import javax.swing.JScrollPane;
 import javax.swing.JScrollBar;
 import javax.swing.ScrollPaneConstants;
+
+import cryptologie.Key;
+
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.Font;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
 
-public class ChatProgrammEncryptet {
+public class ChatProgrammEncrypted {
 
 	private JFrame frmChat;
-	private JTextField textField;
-	private JRadioButton rdbtnEncrypt;
+	public static JTextField textField;
+	public static JRadioButton rdbtnEncrypt;
 	public static JComboBox comboBox;
 	private JButton btnSend;
 	private JButton btnConnect;
@@ -55,16 +60,18 @@ public class ChatProgrammEncryptet {
 	BufferedReader in;
 	private JLabel labelZeile1;
 	private JLabel labelZeile2;
-
+	public static Key verschlüsselung;
+	public static boolean bButton;
+	
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		ChatProgrammEncryptet main = new ChatProgrammEncryptet();
+		ChatProgrammEncrypted main = new ChatProgrammEncrypted();
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					ChatProgrammEncryptet window = new ChatProgrammEncryptet();
+					ChatProgrammEncrypted window = new ChatProgrammEncrypted();
 					window.frmChat.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -76,7 +83,7 @@ public class ChatProgrammEncryptet {
 	/**
 	 * Create the application.
 	 */
-	public ChatProgrammEncryptet() {
+	public ChatProgrammEncrypted() {
 		out = null;
 		in = null;
 		initialize();
@@ -86,6 +93,8 @@ public class ChatProgrammEncryptet {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		bButton = false;
+		verschlüsselung = new Key();
 		connected = false;
 		frmChat = new JFrame();
 		frmChat.setTitle("Chat");
@@ -96,6 +105,11 @@ public class ChatProgrammEncryptet {
 		frmChat.getContentPane().setLayout(null);
 
 		rdbtnEncrypt = new JRadioButton("Encrypt");
+		rdbtnEncrypt.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				bButton = !bButton;
+			}
+		});
 		rdbtnEncrypt.setBounds(365, 7, 84, 23);
 		frmChat.getContentPane().add(rdbtnEncrypt);
 
@@ -124,6 +138,7 @@ public class ChatProgrammEncryptet {
 			}
 		});
 		comboBox.setBounds(365, 37, 84, 23);
+		comboBox.addItem("");
 		frmChat.getContentPane().add(comboBox);
 
 		btnSend = new JButton("Send");
@@ -145,7 +160,7 @@ public class ChatProgrammEncryptet {
 
 							PrintWriter out1 = new PrintWriter(new OutputStreamWriter(sock.getOutputStream()));
 							BufferedReader in1 = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-							out1.println(textField_1.getText() + ";TESTKEY");
+							out1.println(textField_1.getText() + ";"+verschlüsselung.getPublicKey());
 							out1.flush();
 							System.out.println("test");
 							port = Integer.parseInt(in1.readLine());
@@ -227,7 +242,14 @@ public class ChatProgrammEncryptet {
 		if (!comboBox.getSelectedItem().equals("")) {
 			System.out.println("Text send");
 			txtpnHallo.setText(txtpnHallo.getText() + "Du: " + textField.getText() + "\n");
-			EmpfangsThread.msgs.add(comboBox.getSelectedItem()+";"+textField.getText());
+			if (bButton) {
+				verschlüsselung.createKey(EmpfangsThread.keys.get(comboBox.getSelectedIndex()-1));
+				EmpfangsThread.msgs.add(comboBox.getSelectedItem()+";"+verschlüsselung.encrypt(textField.getText()));
+			}
+			else {
+				EmpfangsThread.msgs.add(comboBox.getSelectedItem()+";"+textField.getText());
+			}
+			
 			textField.setText("");
 		}
 		

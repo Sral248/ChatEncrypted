@@ -88,7 +88,7 @@ public class ClientThread extends Thread {
 				msgs = new ArrayList<String>();
 				StringBuilder build = new StringBuilder();
 				for (ClientThread thrd : Main.clients) {
-					build.append(";" + thrd.member.getName());
+					build.append(";" + thrd.member.getName()+"!"+thrd.member.getPublicKey());
 				}
 				out.println(build.toString());
 				out.flush();

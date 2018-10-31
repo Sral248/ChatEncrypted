@@ -8,6 +8,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.naming.ldap.Rdn;
+
 public class EmpfangsThread extends Thread {
 	Socket sock;
 	BufferedReader in;
@@ -15,11 +17,13 @@ public class EmpfangsThread extends Thread {
 	static boolean running;
 	public static List<String> msgs;
 	public static List<String> names;
+	public static List<Integer> keys;
 
 	public EmpfangsThread(int port) {
 		running = true;
 		msgs = new ArrayList<String>();
 		names = new ArrayList<String>();
+		keys = new ArrayList<Integer>();
 		try {
 			sock = new Socket("5.230.147.219", port);
 		} catch (UnknownHostException e1) {
@@ -39,6 +43,7 @@ public class EmpfangsThread extends Thread {
 		}
 
 	}
+
 	public static void stopIT() {
 		running = false;
 	}
@@ -61,28 +66,39 @@ public class EmpfangsThread extends Thread {
 					if (parts[0].equals("")) {
 						names = new ArrayList<String>();
 						for (String string : parts) {
-							if (!ChatProgrammEncryptet.textField_1.getText().equals(string)) {
-								names.add(string);
+							String partss[] = string.split("!");
+							if (!ChatProgrammEncrypted.textField_1.getText().equals(partss[0])) {
+								names.add(partss[0]);
+								try {
+								keys.add(Integer.parseInt(partss[1]));
+								}
+								catch (Exception e) {
+									// TODO: handle exception
+								}
 							}
-							
+
 						}
 						try {
-						boolean reload = true;
-						for (String string : names) {
-							if (ChatProgrammEncryptet.comboBox.getSelectedItem().equals(string)) {
-								reload=false;
+							boolean reload = true;
+							for (String string : names) {
+								String partss[] = string.split("!");
+								if (ChatProgrammEncrypted.comboBox.getSelectedItem().equals(partss[0])) {
+									reload = false;
+								}
 							}
-						}
-						if (reload) {
-							ChatProgrammEncryptet.comboBox.removeAllItems();
-							for (String string : EmpfangsThread.names) {
-								ChatProgrammEncryptet.comboBox.addItem(string);
+							if (reload) {
+								keys = new ArrayList<Integer>();
+								ChatProgrammEncrypted.comboBox.removeAllItems();
+								for (String string : EmpfangsThread.names) {
+									String partss[] = string.split("!");
+									ChatProgrammEncrypted.comboBox.addItem(partss[0]);
+									keys.add(Integer.parseInt(partss[1]));
+								}
 							}
-						}
-						}catch (Exception e) {
+						} catch (Exception e) {
 							// TODO: handle exception
 						}
-						
+
 					} else {
 						StringBuilder build = new StringBuilder();
 						build.append(parts[1]);
@@ -90,9 +106,23 @@ public class EmpfangsThread extends Thread {
 							build.append(";" + parts[j]);
 						}
 						String nachricht = build.toString();
-						nachricht = nachricht.substring(0, nachricht.length()-1);
-						ChatProgrammEncryptet.txtpnHallo.setText(
-								ChatProgrammEncryptet.txtpnHallo.getText() + parts[0] + ": " + nachricht + "\n");
+						nachricht = nachricht.substring(0, nachricht.length() - 1);
+						if (ChatProgrammEncrypted.bButton) {
+							ChatProgrammEncrypted.verschlüsselung.createKey(EmpfangsThread.keys.get(ChatProgrammEncrypted.comboBox.getSelectedIndex()-1));
+							try {
+							ChatProgrammEncrypted.txtpnHallo.setText(
+									ChatProgrammEncrypted.txtpnHallo.getText() + parts[0] + ": " + ChatProgrammEncrypted.verschlüsselung.decrypt(nachricht) + "\n");
+							}
+							catch(Exception e) {
+								ChatProgrammEncrypted.txtpnHallo.setText(
+										ChatProgrammEncrypted.txtpnHallo.getText() + parts[0] + ": " + nachricht + "\n");
+							}
+						}
+						else {
+							ChatProgrammEncrypted.txtpnHallo.setText(
+									ChatProgrammEncrypted.txtpnHallo.getText() + parts[0] + ": " + nachricht + "\n");
+						}
+						
 					}
 				}
 			} catch (IOException e) {
@@ -100,9 +130,20 @@ public class EmpfangsThread extends Thread {
 				e.printStackTrace();
 			}
 			for (String string : msgs) {
-				out.println(string+" ");
+				out.println(string + " ");
 				out.flush();
 				msgs = new ArrayList<String>();
+			}
+			try {
+				if (ChatProgrammEncrypted.comboBox.getSelectedItem().equals("")) {
+					ChatProgrammEncrypted.rdbtnEncrypt.setEnabled(false);
+					ChatProgrammEncrypted.bButton = false;
+					ChatProgrammEncrypted.rdbtnEncrypt.setSelected(false);
+				} else {
+					ChatProgrammEncrypted.rdbtnEncrypt.setEnabled(true);
+				}
+			} catch (Exception e) {
+				// TODO: handle exception
 			}
 
 		}
