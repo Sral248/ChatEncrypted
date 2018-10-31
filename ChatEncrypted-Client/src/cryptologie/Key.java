@@ -5,16 +5,18 @@ import java.math.BigInteger;
 public class Key {
 
 	private int privateKey;
-	public int p = 13009;
-	public int g = 2001;
+	public int p = 2207;
+	public int g = 50;
 	public int publicKeyMe;
 	public int publicKeyYou;
 	private int key;
 	
 	public Key() {
 		
-		privateKey = (int) ((Math.random() * p - 2) + 1);
-		publicKeyMe = (int) Math.pow(g, privateKey) % p;
+		privateKey = (int) ((Math.random() * (p - 2)) + 1);
+		BigInteger t = new BigInteger(Integer.toString(g));
+		t = t.pow(privateKey);
+		publicKeyMe = t.mod(new BigInteger(Integer.toString(p))).intValue();
 	}
 	
 	public int getPublicKey() {

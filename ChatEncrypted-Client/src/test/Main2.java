@@ -9,6 +9,9 @@ public class Main2 {
 		Key alice = new Key();
 		Key bob = new Key();
 		
+		System.out.println("a public key: " + alice.getPublicKey());
+		System.out.println("b public key: " + bob.getPublicKey());
+		
 		alice.createKey(bob.getPublicKey());
 		bob.createKey(alice.getPublicKey());
 		
